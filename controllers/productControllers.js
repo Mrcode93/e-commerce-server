@@ -97,7 +97,26 @@ exports.getProducts = async (req, res) => {
 exports.updateProduct = async (req, res) => {
   const { id } = req.params;
   const { name, price, description, categories } = req.body;
-  const { image } = req.files; // Assuming `req.files` contains the updated image file
+
+  // Check if req.files is defined and contains the 'image' property
+  if (!req.files || !req.files.image) {
+    // Handle case where no image file was uploaded
+    try {
+      await Product.findByIdAndUpdate(id, {
+        name,
+        price,
+        description,
+        categories,
+      });
+      res.status(200).json({ message: "Product updated successfully" });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+    return;
+  }
+
+  // If req.files.image exists, proceed with uploading and updating
+  const { image } = req.files;
 
   if (!name || !price || !description || !categories) {
     return res.status(400).json({ message: "All fields are required" });
@@ -126,29 +145,19 @@ exports.updateProduct = async (req, res) => {
     }
 
     // Upload new image if provided
-    if (image) {
-      const imagePath = path.join(__dirname, "..", "uploads", image.name); // Adjust as per your image upload path
-      await image.mv(imagePath); // Move the uploaded file to a local directory
-      const remoteImagePath = `/export/home/434379-e-commerce/htdocs/${image.name}`; // Adjust remote path as per your setup
-      await uploadFile(imagePath, remoteImagePath);
+    const imagePath = path.join(__dirname, "..", "uploads", image.name); // Adjust as per your image upload path
+    await image.mv(imagePath); // Move the uploaded file to a local directory
+    const remoteImagePath = `/export/home/434379-e-commerce/htdocs/${image.name}`; // Adjust remote path as per your setup
+    await uploadFile(imagePath, remoteImagePath);
 
-      // Update product with new image path
-      await Product.findByIdAndUpdate(id, {
-        name,
-        price,
-        description,
-        image: remoteImagePath, // Save the remote image path in the database
-        categories,
-      });
-    } else {
-      // Update product without changing the image
-      await Product.findByIdAndUpdate(id, {
-        name,
-        price,
-        description,
-        categories,
-      });
-    }
+    // Update product with new image path
+    await Product.findByIdAndUpdate(id, {
+      name,
+      price,
+      description,
+      image: remoteImagePath, // Save the remote image path in the database
+      categories,
+    });
 
     res.status(200).json({ message: "Product updated successfully" });
   } catch (error) {
