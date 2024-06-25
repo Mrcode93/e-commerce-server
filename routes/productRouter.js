@@ -1,50 +1,3 @@
-// const express = require("express");
-// const router = express.Router();
-// const productController = require("../controllers/productControllers");
-// const middleWare = require("../middleware/middleWare");
-
-// const multer = require("multer");
-
-// // Setup
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "./uploads"); // Adjust path as needed
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, Date.now() + "-" + file.originalname);
-//   },
-// });
-
-// const upload = multer({ storage: storage });
-
-// router.post(
-//   "/products",
-//   middleWare,
-//   upload.single("image"),
-//   productController.addProduct
-// );
-// router.get("/products", middleWare, productController.getProducts);
-// router.get("/products/:id", middleWare, productController.getProductById);
-// router.put("/products/:id", middleWare, productController.updateProduct);
-// router.delete("/products/:id", middleWare, productController.deleteProduct);
-// router.get(
-//   "/products/category/:id",
-//   middleWare,
-//   productController.getProductsByCategory
-// );
-// router.get(
-//   "/products/name/:name",
-//   middleWare,
-//   productController.getProductsByName
-// );
-// router.get(
-//   "/products/price/:min/:max",
-//   middleWare,
-//   productController.getProductsByPrice
-// );
-
-// module.exports = router;
-
 const express = require("express");
 const router = express.Router();
 const productController = require("../controllers/productControllers");
@@ -122,7 +75,7 @@ router.post(
  *       500:
  *         description: Internal server error
  */
-router.get("/products", middleWare, productController.getProducts);
+router.get("/products", productController.getProducts);
 
 /**
  * @swagger
@@ -146,7 +99,7 @@ router.get("/products", middleWare, productController.getProducts);
  *       500:
  *         description: Internal server error
  */
-router.get("/products/:id", middleWare, productController.getProductById);
+router.get("/products/:id", productController.getProductById);
 
 /**
  * @swagger
@@ -240,11 +193,7 @@ router.delete("/products/:id", middleWare, productController.deleteProduct);
  *       500:
  *         description: Internal server error
  */
-router.get(
-  "/products/category/:id",
-  middleWare,
-  productController.getProductsByCategory
-);
+router.get("/products/category/:id", productController.getProductsByCategory);
 
 /**
  * @swagger
@@ -270,7 +219,7 @@ router.get(
  */
 router.get(
   "/products/name/:name",
-  middleWare,
+
   productController.getProductsByName
 );
 
@@ -304,7 +253,7 @@ router.get(
  */
 router.get(
   "/products/price/:min/:max",
-  middleWare,
+
   productController.getProductsByPrice
 );
 

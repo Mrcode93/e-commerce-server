@@ -1,16 +1,3 @@
-// const express = require("express");
-// const router = express.Router();
-// const categoryController = require("../controllers/categoryController");
-// const middleWare = require("../middleware/middleWare");
-
-// router.get("/categories", middleWare, categoryController.getCategories);
-// router.post("/categories", middleWare, categoryController.addCategory);
-// router.get("categories/:id", middleWare, categoryController.getCategoryById);
-// router.delete("/categories/:id", middleWare, categoryController.deleteCategory);
-// router.put("/categories/:id", middleWare, categoryController.updateCategory);
-
-// module.exports = router;
-
 const express = require("express");
 const router = express.Router();
 const categoryController = require("../controllers/categoryController");
@@ -40,7 +27,7 @@ const middleWare = require("../middleware/middleWare");
  *               items:
  *                 $ref: '#/components/schemas/Category'
  */
-router.get("/categories", middleWare, categoryController.getCategories);
+router.get("/categories", categoryController.getCategories);
 
 /**
  * @swagger
@@ -92,7 +79,7 @@ router.post("/categories", middleWare, categoryController.addCategory);
  *       '404':
  *         description: Category not found
  */
-router.get("/categories/:id", middleWare, categoryController.getCategoryById);
+router.get("/categories/:id", categoryController.getCategoryById);
 
 /**
  * @swagger
