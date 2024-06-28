@@ -24,5 +24,7 @@ dist-ssr
 *.sln
 *.sw?
 
-/Users/mrcode/node-servers/controllerswhite-position-425923-g0-5bf066b2a3d9.json
+# secret files
+.env
+
 white-position-425923-g0-5bf066b2a3d9.json
