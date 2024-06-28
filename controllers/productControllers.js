@@ -20,10 +20,75 @@ async function uploadFile(localFilePath) {
 
 const fs = require("fs");
 
+// exports.addProduct = async (req, res) => {
+//   const { name, price, description, categories } = req.body;
+
+//   console.log(req.body);
+
+//   try {
+//     const newCategories = JSON.parse(categories);
+
+//     // Ensure categories is defined and is an array
+//     if (!Array.isArray(newCategories)) {
+//       return res
+//         .status(400)
+//         .json({ message: "Categories must be provided as an array" });
+//     }
+
+//     // Ensure categories exist
+//     const existingCategories = await Category.find({
+//       name: { $in: newCategories },
+//     });
+
+//     const nonExistingCategories = newCategories.filter(
+//       (category) => !existingCategories.some((cat) => cat.name === category)
+//     );
+
+//     if (nonExistingCategories.length > 0) {
+//       return res.status(400).json({
+//         message: `Categories do not exist: ${nonExistingCategories.join(", ")}`,
+//       });
+//     }
+
+//     // Check if req.file is defined and contains 'filename'
+//     if (!req.file || !req.file.filename) {
+//       return res.status(400).json({ message: "Image file is required" });
+//     }
+
+//     const imagePath = path.join(__dirname, "../uploads", req.file.filename);
+//     const remoteImagePath = `/uploads/${req.file.filename}`;
+
+//     // Log paths for debugging
+//     console.log("Local image path:", imagePath);
+//     console.log("Remote image path:", remoteImagePath);
+
+//     if (fs.existsSync(imagePath)) {
+//       console.log("File exists: ", imagePath);
+//     } else {
+//       console.log("File does not exist: ", imagePath);
+//       return res.status(500).json({ message: "File not found after upload" });
+//     }
+
+//     const newProduct = new Product({
+//       name,
+//       price,
+//       description,
+//       image: remoteImagePath,
+//       categories: newCategories,
+//     });
+
+//     await newProduct.save();
+//     res
+//       .status(200)
+//       .json({ message: "Product added successfully", product: newProduct });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
 exports.addProduct = async (req, res) => {
   const { name, price, description, categories } = req.body;
-
-  console.log(req.body);
 
   try {
     const newCategories = JSON.parse(categories);
@@ -50,30 +115,18 @@ exports.addProduct = async (req, res) => {
       });
     }
 
-    // Check if req.file is defined and contains 'filename'
-    if (!req.file || !req.file.filename) {
-      return res.status(400).json({ message: "Image file is required" });
+    // Check if req.body.imageUrl is defined (public URL from GCS)
+    if (!req.body.imageUrl) {
+      return res.status(400).json({ message: "Image URL is required" });
     }
 
-    const imagePath = path.join(__dirname, "../uploads", req.file.filename);
-    const remoteImagePath = `/uploads/${req.file.filename}`;
-
-    // Log paths for debugging
-    console.log("Local image path:", imagePath);
-    console.log("Remote image path:", remoteImagePath);
-
-    if (fs.existsSync(imagePath)) {
-      console.log("File exists: ", imagePath);
-    } else {
-      console.log("File does not exist: ", imagePath);
-      return res.status(500).json({ message: "File not found after upload" });
-    }
+    const imageUrl = req.body.imageUrl;
 
     const newProduct = new Product({
       name,
       price,
       description,
-      image: remoteImagePath,
+      image: imageUrl, // Store the public URL of the image
       categories: newCategories,
     });
 
@@ -165,13 +218,6 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-//! get product by id =================================================================
-exports.getProductById = async (req, res) => {
-  const { id } = req.params;
-  const product = await Product.findById(id);
-  res.status(200).json({ product });
-};
-
 //! delete product =================================================================const fs = require('fs');
 
 exports.deleteProduct = async (req, res) => {
@@ -244,4 +290,22 @@ exports.getProductsByPrice = async (req, res) => {
   }
 };
 
-//! get products by category =================================================================
+// ! get lastest products ================================================================
+
+exports.getLatestProducts = async (req, res) => {
+  try {
+    const products = await Product.find()
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .limit(8); // Limit the results to 8 products
+
+    res.status(200).json({ products });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch latest products" });
+  }
+};
+//! get product by id =================================================================
+exports.getProductById = async (req, res) => {
+  const { id } = req.params;
+  const product = await Product.findById(id);
+  res.status(200).json({ product });
+};
