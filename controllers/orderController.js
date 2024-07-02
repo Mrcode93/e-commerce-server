@@ -1,51 +1,46 @@
-// controllers/orderController.js
+const categoryModel = require("../models/cantegoryModel");
+//! add category =================================================================
+exports.addCategory = async (req, res) => {
+  const { name } = req.body;
+  const categoryName = await categoryModel.findOne({ name });
+  if (categoryName) {
+    return res.status(400).json({ message: "Category already exists" });
+  }
 
-const orderModel = require("../models/orders");
-
-const addOrder = async (req, res) => {
-  const order = new orderModel({
-    name: req.body.name,
-    phone: req.body.phone,
-    address: req.body.address,
-    city: req.body.city,
-    is_delevered: req.body.is_delevered,
-    total: req.body.total,
-    order_items: req.body.order_items,
+  if (!name) {
+    return res.status(400).json({ message: "Name is required" });
+  }
+  const category = new categoryModel({
+    name,
   });
-  try {
-    const newOrder = await order.save();
-    res.status(201).json(newOrder);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
+  await category.save();
+  res.status(200).json({ message: "Category added successfully", category });
 };
 
-const getOrders = async (req, res) => {
-  try {
-    const orders = await orderModel.find();
-    res.status(200).json(orders);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+//! get all categories =================================================================
+exports.getCategories = async (req, res) => {
+  const categories = await categoryModel.find();
+  res.status(200).json({ categories });
 };
 
-// is_deleverd controller
-
-const updateOrder = async (req, res) => {
+//! get category by id =================================================================
+exports.getCategoryById = async (req, res) => {
   const { id } = req.params;
-  const { is_delevered } = req.body;
-  try {
-    const updatedOrder = await orderModel.findByIdAndUpdate(id, {
-      is_delevered: !is_delevered,
-    });
-    res.status(200).json(updatedOrder);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  const category = await categoryModel.findById(id);
+  res.status(200).json({ category });
 };
 
-module.exports = {
-  addOrder,
-  getOrders,
-  updateOrder,
+//! delete category =================================================================
+exports.deleteCategory = async (req, res) => {
+  const { id } = req.params;
+  await categoryModel.findByIdAndDelete(id);
+  res.status(200).json({ message: "Category deleted successfully" });
+};
+
+//! update category =================================================================
+exports.updateCategory = async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+  await categoryModel.findByIdAndUpdate(id, { name });
+  res.status(200).json({ message: "Category updated successfully", name });
 };
